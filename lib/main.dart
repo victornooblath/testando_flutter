@@ -2,44 +2,82 @@ import 'package:flutter/material.dart';
 
 // teste1
 void main() {
-  runApp(MaterialApp(
-    home: MyApp(),
-  ));
+  runApp(const MaterialApp(home: TelaConta()));
 }
 
-class NomeAmigo extends StatelessWidget {
-  final String nome;
-  final Color cor;
-  NomeAmigo(this.nome, this.cor);
+class TelaConta extends StatefulWidget {
+  const TelaConta({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.all(10),
-        child: DecoratedBox(
-            decoration: BoxDecoration(color: cor),
-            child: Text(nome,
-                style: TextStyle(
-                  fontSize: 32,
-                ))));
+  State<StatefulWidget> createState() {
+    return _CalContaEstado();
   }
 }
 
-class MyApp extends StatelessWidget {
+class _CalContaEstado extends State<TelaConta> {
+  final _formCalc = GlobalKey<FormState>();
+  double _valor = 0.0;
+  double _valorPorc = 0.0;
+  var _valorTotal;
+
+  void _calcTotal() {
+    setState(() {
+      _valorTotal = _valor * (100 + _valorPorc) / 100;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Meus Amigos'),
+        title: const Text('Conta'),
       ),
-      body: Center(
-          child: Column(
-        children: <Widget>[
-          NomeAmigo('Alan', Colors.red),
-          NomeAmigo('Paulo', Colors.yellow),
-          NomeAmigo('Carlos', Colors.green),
-          NomeAmigo('Pedro', Colors.blue),
-        ],
-      )),
+      body: Form(
+        key: _formCalc,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextFormField(
+                  decoration: const InputDecoration(hintText: 'Valor da conta'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'erro! informe um valor';
+                    } else {
+                      _valor = double.parse(value);
+                      if (_valor <= 0) {
+                        return "erro! o valor tem que ser maior que zero";
+                      }
+                    }
+                    return null;
+                  }),
+              TextFormField(
+                  decoration: const InputDecoration(hintText: 'Valor da % do acrescimo'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'erro! informe um valor';
+                    } else {
+                      _valorPorc = double.parse(value);
+                      if (_valorPorc <= 0) {
+                        return "erro! o valor tem que ser maior que zero";
+                      }
+                    }
+                    return null;
+                  }),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formCalc.currentState!.validate()) {
+                    _calcTotal();
+                  }
+                },
+                child:
+                  const Text('Calcular')
+              ),
+              Text(
+                'valor total R\$ $_valorTotal',
+                style: const TextStyle(fontSize:20),
+              )
+            ]),
+      ),
     );
   }
 }
